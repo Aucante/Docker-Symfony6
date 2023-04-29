@@ -29,7 +29,7 @@ docker compose up -d
 docker compose down
 ```
 
-### Init DB
+## Init DB
 
 ##### Enter in container php
 
@@ -48,3 +48,5 @@ composer require symfony/orm-pack
 ```bash
 php bin/console doctrine:query:sql 'select * FROM pg_catalog.pg_tables;'
 ```
+
+Don't forget to set your database informations.
