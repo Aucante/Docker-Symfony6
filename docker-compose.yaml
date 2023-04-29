@@ -1,0 +1,60 @@
+version: '3'
+
+services:
+  php:
+    build:
+      context: .
+      target: app_php
+      args:
+        SYMFONY_VERSION: ${SYMFONY_VERSION:-}
+        STABILITY: ${STABILITY:-stable}
+    restart: unless-stopped
+    volumes:
+      - php_socket:/var/run/php
+    healthcheck:
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 30s
+    environment:
+      APP_ENV: dev
+      DATABASE_URL: postgresql://app:!ChangeMe!@database:5432/app?serverVersion=15&charset=utf8
+      MERCURE_URL: ${CADDY_MERCURE_URL:-http://caddy/.well-known/mercure}
+      MERCURE_PUBLIC_URL: https://${SERVER_NAME:-localhost}/.well-known/mercure
+      MERCURE_JWT_SECRET: ${CADDY_MERCURE_JWT_SECRET:-!ChangeThisMercureHubJWTSecretKey!}
+
+  nginx:
+    build:
+      context: .
+      target: nginx
+    container_name: ${COMPOSE_PROJECT_NAME}-nginx
+    restart: always
+    ports:
+      - "${WEB_PORT_HTTP}:80"
+      - "${WEB_PORT_SSL}:443"
+    volumes:
+      - ./:/srv/app:ro,cached
+      - php_socket:/var/run/php
+      - ./docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+
+###> doctrine/doctrine-bundle ###
+  database:
+    image: postgres:${POSTGRES_VERSION:-15}-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-app}
+      # You should definitely change the password in production
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-!ChangeMe!}
+      POSTGRES_USER: ${POSTGRES_USER:-app}
+    volumes:
+      - database_data:/var/lib/postgresql/data:rw
+    ports:
+    - "9750:5432"
+      # You may use a bind-mounted host directory instead, so that it is harder to accidentally remove the volume and lose all your data!
+      # - ./docker/db/data:/var/lib/postgresql/data:rw
+###< doctrine/doctrine-bundle ###
+
+volumes:
+  php_socket:
+###> doctrine/doctrine-bundle ###
+  database_data:
+###< doctrine/doctrine-bundle ###
