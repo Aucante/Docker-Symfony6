@@ -56,3 +56,7 @@ Don't forget to set your database informations.
 ```bash
 sudo chown -R {YOUR_USER_NAME} src/
 ```
+
+```bash
+sudo chmod 777 src/
+```
