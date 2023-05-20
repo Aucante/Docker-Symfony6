@@ -43,7 +43,7 @@ docker exec -it {FOLDER-NAME}-{PHP-CONTAINER-NAME} sh
 composer require symfony/orm-pack
 ```
 
-##### Check postgre
+##### Check postgre (php containter)
 
 ```bash
 php bin/console doctrine:query:sql 'select * FROM pg_catalog.pg_tables;'
